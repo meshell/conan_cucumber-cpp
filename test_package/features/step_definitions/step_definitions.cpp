@@ -7,9 +7,9 @@ namespace
 using cucumber::ScenarioScope;
 
 struct Context {
-    int number_1{};
-    int number_2{};
-    int result{};
+    int number_1;
+    int number_2;
+    int result;
 };
 
 GIVEN("^the numbers (-?\\d+) and (-?\\d+)$") {
