@@ -19,9 +19,10 @@ class CucumberCppConan(ConanFile):
     options = {
         "disable_boost_test": ['ON', 'OFF'],  # Statically link Boost (except boost::test)
         "disable_gtest": ['ON', 'OFF'],  # Disable boost:test
-        "use_static_boost": ['ON', 'OFF']  # Disable Google Test framework
+        "use_static_boost": ['ON', 'OFF'],  # Disable Google Test framework
+        "cygwin_msvc": [True, False]
     }
-    default_options = "disable_boost_test=OFF", "disable_gtest=OFF", "use_static_boost=OFF"
+    default_options = "disable_boost_test=OFF", "disable_gtest=OFF", "use_static_boost=OFF", "cygwin_msvc=False"
 
     build_dir = '_build'
     boost_version = '1.60.0'
@@ -61,8 +62,8 @@ class CucumberCppConan(ConanFile):
         cd_src = "cd {}".format(self.folder_name)
         msdos_shell = (self.settings.os == "Windows") and (self.options.cygwin_msvc == False)
         if msdos_shell:
-            self.run("{cd_src} && IF not exist {}/{build_dir} mkdir {build_dir}".format(cd_src=cd_src,
-                                                                                        build_dir=self.build_dir))
+            self.run("{cd_src} && IF not exist {build_dir} mkdir {build_dir}".format(cd_src=cd_src,
+                                                                                     build_dir=self.build_dir))
         else:
             self.run("{cd_src} && mkdir -p {build_dir}".format(cd_src=cd_src,
                                                                build_dir=self.build_dir))
@@ -86,12 +87,8 @@ class CucumberCppConan(ConanFile):
                                                                        build_config=cmake.build_config))
 
     def package(self):
-        # self.copy('*', dst='cmake', src="{src_dir}/cmake".format(src_dir=self.name), keep_path=True)
         self.copy('*', dst='include', src="{src_dir}/include".format(src_dir=self.folder_name), keep_path=True)
-        # self.copy('*', dst='src', src="{src_dir}/src".format(src_dir=self.name), keep_path=True)
 
-        # self.copy('Gemfile', dst='.', src=self.name, keep_path=True)
-        # self.copy('CMakeLists.txt', dst='.', src=self.name, keep_path=True)
         self.copy("FindCuke.cmake", dst='.', src='.')
 
         # Meta files
@@ -101,6 +98,8 @@ class CucumberCppConan(ConanFile):
 
         self.copy("*.lib", dst='lib', src='{}/{}/lib'.format(self.folder_name, self.build_dir))
         self.copy("*.a", dst="lib", src='{}/{}/lib'.format(self.folder_name, self.build_dir))
+
+        self._copy_visual_binaries()
 
     def _copy_visual_binaries(self):
         self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
