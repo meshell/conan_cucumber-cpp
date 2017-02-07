@@ -6,6 +6,7 @@ import os
 channel = os.getenv("CONAN_CHANNEL", "testing")
 username = os.getenv("CONAN_USERNAME", "meshell")
 
+
 class CucumberCppConan(ConanFile):
     name = "cucumber-cpp"
     version = "0.3.2rc1"
@@ -14,7 +15,7 @@ class CucumberCppConan(ConanFile):
     generators = ['cmake', 'txt']
     url = 'https://github.com/meshell/cucumber-cpp_conan'
     exports = ['CMakeLists.txt', 'FindCuke.cmake', 'CodeCoverageCucumber.cmake']
-    license="https://github.com/cucumber/cucumber-cpp/blob/master/LICENSE.txt"
+    license = "https://github.com/cucumber/cucumber-cpp/blob/master/LICENSE.txt"
     options = {
         "disable_boost_test": ['ON', 'OFF'],  # Statically link Boost (except boost::test)
         "disable_gtest": ['ON', 'OFF'],  # Disable boost:test
@@ -53,7 +54,8 @@ class CucumberCppConan(ConanFile):
         set(GMOCK_ROOT "${CONAN_GTEST_ROOT}")
         set(GTEST_ROOT "${CONAN_GTEST_ROOT}")
         '''
-        tools.replace_in_file("{}/CMakeLists.txt".format(self.folder_name), 'project(Cucumber-Cpp)', 'project(Cucumber-Cpp CXX C)\n{}'.format(cmakelist_prepend))
+        tools.replace_in_file("{}/CMakeLists.txt".format(self.folder_name), 'project(Cucumber-Cpp)',
+                              'project(Cucumber-Cpp CXX C)\n{}'.format(cmakelist_prepend))
 
         cmake = CMake(self.settings)
         cd_src = "cd {}".format(self.folder_name)
@@ -74,9 +76,9 @@ class CucumberCppConan(ConanFile):
             disable_gtest=self.options.disable_gtest)
         flag_no_tests = "" if self.scope.dev and self.scope.build_tests else "-DCUKE_DISABLE_UNIT_TESTS=ON -DCUKE_DISABLE_E2E_TESTS=ON"
         configure_command = '{cd_build} && cmake .. {cmd} {flags} {flag_no_tests}'.format(cd_build=cd_build_cmd,
-                                                                               cmd=cmake.command_line,
-                                                                               flags=flags,
-                                                                               flag_no_tests=flag_no_tests)
+                                                                                          cmd=cmake.command_line,
+                                                                                          flags=flags,
+                                                                                          flag_no_tests=flag_no_tests)
         self.output.warn("Configure with: {}".format(configure_command))
         self.run(configure_command)
 
@@ -84,12 +86,12 @@ class CucumberCppConan(ConanFile):
                                                                        build_config=cmake.build_config))
 
     def package(self):
-        #self.copy('*', dst='cmake', src="{src_dir}/cmake".format(src_dir=self.name), keep_path=True)
+        # self.copy('*', dst='cmake', src="{src_dir}/cmake".format(src_dir=self.name), keep_path=True)
         self.copy('*', dst='include', src="{src_dir}/include".format(src_dir=self.folder_name), keep_path=True)
-        #self.copy('*', dst='src', src="{src_dir}/src".format(src_dir=self.name), keep_path=True)
+        # self.copy('*', dst='src', src="{src_dir}/src".format(src_dir=self.name), keep_path=True)
 
-        #self.copy('Gemfile', dst='.', src=self.name, keep_path=True)
-        #self.copy('CMakeLists.txt', dst='.', src=self.name, keep_path=True)
+        # self.copy('Gemfile', dst='.', src=self.name, keep_path=True)
+        # self.copy('CMakeLists.txt', dst='.', src=self.name, keep_path=True)
         self.copy("FindCuke.cmake", dst='.', src='.')
 
         # Meta files
@@ -97,8 +99,8 @@ class CucumberCppConan(ConanFile):
         self.copy('LICENSE.txt', dst='.', src=self.folder_name, keep_path=True)
         self.copy('README.md', dst='.', src=self.folder_name, keep_path=True)
 
-        self.copy("*.lib", dst='lib', src='{}/{}/lib'.format(self.folder_name,self.build_dir))
-        self.copy("*.a", dst="lib", src='{}/{}/lib'.format(self.folder_name,self.build_dir))
+        self.copy("*.lib", dst='lib', src='{}/{}/lib'.format(self.folder_name, self.build_dir))
+        self.copy("*.a", dst="lib", src='{}/{}/lib'.format(self.folder_name, self.build_dir))
 
     def _copy_visual_binaries(self):
         self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
