@@ -43,7 +43,10 @@ class CucumberCppConan(ConanFile):
         else:
             self.requires("gtest/{gtest_version}@lasote/stable".format(gtest_version=self.gtest_version), dev=True)
 
-    def config(self):
+    def config_options(self):
+        # use libstdc++11 on gcc > 5.1
+        if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
+            self.settings.compiler.libcxx = 'libstdc++11'
         if self.settings.os == "Windows":
             self.options.use_static_boost = 'ON'
 
