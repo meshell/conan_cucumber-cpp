@@ -14,20 +14,20 @@ Download conan client from [Conan.io](https://conan.io) and run:
 
 ## Upload packages to server
 
-$ conan upload cucumber-cpp/0.3.2rc1@meshell/testing --all
+$ conan upload cucumber-cpp/master@meshell/testing --all
 
 ## Reuse the packages
 
 ### Basic setup
 
-    $ conan install cucumber-cpp/0.3.2rc1@meshell/testing
+    $ conan install cucumber-cpp/master@meshell/testing
 
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
 
     [requires]
-    cucumber-cpp/0.3.2rc1@meshell/testing
+    cucumber-cpp/master@meshell/testing
 
     [generators]
     txt

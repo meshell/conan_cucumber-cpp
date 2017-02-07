@@ -9,7 +9,7 @@ username = os.getenv("CONAN_USERNAME", "meshell")
 
 class CucumberCppConan(ConanFile):
     name = "cucumber-cpp"
-    version = "0.3.2rc1"
+    version = "master"
     folder_name = "cucumber-cpp-{}".format(version)
     settings = ['os', 'compiler', 'build_type', 'arch']
     generators = ['cmake', 'txt']
@@ -30,7 +30,7 @@ class CucumberCppConan(ConanFile):
 
     def source(self):
         tar_name = "{}.tar.gz".format(self.folder_name)
-        source_tgz = "https://github.com/meshell/cucumber-cpp/archive/v{release}.tar.gz".format(release=self.version)
+        source_tgz = "https://github.com/cucumber/cucumber-cpp/archive/{release}.tar.gz".format(release=self.version)
         self.output.info("Downloading {}".format(source_tgz))
         tools.download(source_tgz, tar_name)
         tools.unzip(tar_name)
