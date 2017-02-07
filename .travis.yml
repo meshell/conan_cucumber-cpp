@@ -5,6 +5,7 @@ sudo: required
 language: python
 env:
   global:
+  - CONAN_UPLOAD=1
   - CONAN_REFERENCE="cucumber-cpp/0.3.2rc1"
   - CONAN_USERNAME="meshell"
   - CONAN_CHANNEL="testing"
