@@ -51,9 +51,6 @@ class CucumberCppConan(ConanFile):
             self.requires("gmock/{gtest_version}@meshell/testing".format(gtest_version=self.gtest_version), dev=True)
 
     def config_options(self):
-        # use libstdc++11 on gcc > 5.1
-        if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
-            self.settings.compiler.libcxx = 'libstdc++11'
         if self.settings.os == "Windows":
             self.options.use_static_boost = True
         if self.settings.compiler != "Visual Studio":
