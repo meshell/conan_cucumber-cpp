@@ -9,6 +9,7 @@ username = os.getenv("CONAN_USERNAME", "meshell")
 
 class CucumberCppConan(ConanFile):
     name = "cucumber-cpp"
+    description = "Conan package for the cucumber-cpp C++ BDD framework"
     version = "master"
     folder_name = "cucumber-cpp-{}".format(version)
     settings = ['os', 'compiler', 'build_type', 'arch']
@@ -17,16 +18,22 @@ class CucumberCppConan(ConanFile):
     exports = ['CMakeLists.txt', 'FindCuke.cmake', 'CodeCoverageCucumber.cmake']
     license = "https://github.com/cucumber/cucumber-cpp/blob/master/LICENSE.txt"
     options = {
-        "disable_boost_test": ['ON', 'OFF'],  # Statically link Boost (except boost::test)
-        "disable_gtest": ['ON', 'OFF'],  # Disable boost:test
-        "use_static_boost": ['ON', 'OFF'],  # Disable Google Test framework
+        "disable_boost_test": [True, False],  # Disable boost test driver
+        "disable_gtest": [True, False],  # Disable googletest driver
+        "use_static_boost": [True, False],  # Statically link Boost (except boost::test)
+        "include_pdbs": [True, False],
         "cygwin_msvc": [True, False]
     }
-    default_options = "disable_boost_test=OFF", "disable_gtest=OFF", "use_static_boost=OFF", "cygwin_msvc=False"
+
+    default_options = "disable_boost_test=False", "disable_gtest=False", "use_static_boost=False", "include_pdbs=False", "cygwin_msvc=False"
 
     build_dir = '_build'
     boost_version = '1.60.0'
     gtest_version = '1.8.0'
+
+    @staticmethod
+    def _make_cmake_bool(value):
+        return "ON" if value else "OFF"
 
     def source(self):
         tar_name = "{}.tar.gz".format(self.folder_name)
@@ -39,16 +46,21 @@ class CucumberCppConan(ConanFile):
     def requirements(self):
         self.requires("Boost/{boost_version}@lasote/stable".format(boost_version=self.boost_version))
         if not self.options.disable_gtest:
-            self.requires("gtest/{gtest_version}@lasote/stable".format(gtest_version=self.gtest_version))
+            self.requires("gmock/{gtest_version}@meshell/testing".format(gtest_version=self.gtest_version))
         else:
-            self.requires("gtest/{gtest_version}@lasote/stable".format(gtest_version=self.gtest_version), dev=True)
+            self.requires("gmock/{gtest_version}@meshell/testing".format(gtest_version=self.gtest_version), dev=True)
 
     def config_options(self):
         # use libstdc++11 on gcc > 5.1
         if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
             self.settings.compiler.libcxx = 'libstdc++11'
         if self.settings.os == "Windows":
-            self.options.use_static_boost = 'ON'
+            self.options.use_static_boost = True
+        if self.settings.compiler != "Visual Studio":
+            try:  # It might have already been removed if required by more than 1 package
+                del self.options.include_pdbs
+            except:
+                pass
 
     def build(self):
         cmakelist_prepend = '''
@@ -75,9 +87,9 @@ class CucumberCppConan(ConanFile):
         # BUILD
         flags = "-DGMOCK_VER={gmock_ver} -DCUKE_DISABLE_BOOST_TEST={disable_boost_test} -DCUKE_USE_STATIC_BOOST={use_static_boost} -DCUKE_DISABLE_GTEST={disable_gtest}".format(
             gmock_ver=self.gtest_version,
-            disable_boost_test=self.options.disable_boost_test,
-            use_static_boost=self.options.use_static_boost,
-            disable_gtest=self.options.disable_gtest)
+            disable_boost_test=self._make_cmake_bool(self.options.disable_boost_test),
+            use_static_boost=self._make_cmake_bool(self.options.use_static_boost),
+            disable_gtest=self._make_cmake_bool(self.options.disable_gtest))
         flag_no_tests = "" if self.scope.dev and self.scope.build_tests else "-DCUKE_DISABLE_UNIT_TESTS=ON -DCUKE_DISABLE_E2E_TESTS=ON"
         configure_command = '{cd_build} && cmake .. {cmd} {flags} {flag_no_tests}'.format(cd_build=cd_build_cmd,
                                                                                           cmd=cmake.command_line,
@@ -99,15 +111,14 @@ class CucumberCppConan(ConanFile):
         self.copy('LICENSE.txt', dst='.', src=self.folder_name, keep_path=True)
         self.copy('README.md', dst='.', src=self.folder_name, keep_path=True)
 
-        self.copy("*.lib", dst='lib', src='{}/{}/lib'.format(self.folder_name, self.build_dir))
-        self.copy("*.a", dst="lib", src='{}/{}/lib'.format(self.folder_name, self.build_dir))
+        # Copying static and dynamic libs
+        self.copy(pattern="*.a", dst="lib", src='{}/{}/lib'.format(self.folder_name, self.build_dir), keep_path=False)
+        self.copy(pattern="*.lib", dst="lib", src='{}/{}/lib'.format(self.folder_name, self.build_dir), keep_path=False)
 
-        self._copy_visual_binaries()
-
-    def _copy_visual_binaries(self):
-        self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*.dll", dst="bin", src="bin", keep_path=False)
-        self.copy(pattern="*.dll", dst="bin", src="bin", keep_path=False)
+        # Copying debug symbols
+        if self.settings.compiler == "Visual Studio" and self.options.include_pdbs:
+            self.copy(pattern="*.pdb", dst="lib", src='{}/{}/lib'.format(self.folder_name, self.build_dir),
+                      keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs.append('cucumber-cpp')

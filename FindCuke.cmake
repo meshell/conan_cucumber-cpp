@@ -17,9 +17,13 @@ function(_cuke_append_debugs _endvar _library)
 endfunction()
 
 
-find_path(CUKE_INCLUDE_DIR cucumber-cpp/internal/CukeCommands.hpp
+MESSAGE(STATUS "********* Conan FindGMock wrapper! **********")
+
+set(CUKE_ROOT ${CONAN_CUCUMBER-CPP_ROOT})
+
+find_path(CUKE_INCLUDE_DIR cucumber-cpp/internal/CukeCommands.hpp 
     HINTS
-        ${CONAN_CUCUMBER-CPP_ROOT}
+        ${CUKE_ROOT}
 )
 
 
@@ -30,7 +34,7 @@ function(_cuke_find_library _name)
         NAMES ${ARGN}
         HINTS
             ENV CUKE_ROOT
-            ${CONAN_CUCUMBER-CPP_ROOT}
+            ${CUKE_ROOT}
     )
     mark_as_advanced(${_name})
 endfunction()
