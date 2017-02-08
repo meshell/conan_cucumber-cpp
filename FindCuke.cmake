@@ -17,11 +17,11 @@ function(_cuke_append_debugs _endvar _library)
 endfunction()
 
 
-MESSAGE(STATUS "********* Conan FindGMock wrapper! **********")
+MESSAGE(STATUS "********* Conan FindCuke (aka cucumber-cpp) wrapper! **********")
 
 set(CUKE_ROOT ${CONAN_CUCUMBER-CPP_ROOT})
 
-find_path(CUKE_INCLUDE_DIR cucumber-cpp/internal/CukeCommands.hpp 
+find_path(CUKE_INCLUDE_DIR cucumber-cpp/internal/CukeCommands.hpp
     HINTS
         ${CUKE_ROOT}
 )
