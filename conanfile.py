@@ -102,6 +102,7 @@ class CucumberCppConan(ConanFile):
         self.copy('*', dst='include', src="{src_dir}/include".format(src_dir=self.folder_name), keep_path=True)
 
         self.copy("FindCuke.cmake", dst='.', src='.')
+        self.copy("CodeCoverageCucumber.cmake", dst='.', src='.')
 
         # Meta files
         self.copy('HISTORY.md', dst='.', src=self.folder_name, keep_path=True)
