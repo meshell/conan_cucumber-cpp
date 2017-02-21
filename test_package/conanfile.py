@@ -5,8 +5,9 @@ import os
 channel = os.getenv("CONAN_CHANNEL", "testing")
 username = os.getenv("CONAN_USERNAME", "meshell")
 
-
-class CucumberCppFeatureConan(ConanFile):
+class DefaultNameConan(ConanFile):
+    name = "DefaultName"
+    version = "0.1"
     settings = "os", "compiler", "build_type", "arch"
     requires = "cucumber-cpp/master@{}/{}".format(username, channel)
     generators = "cmake"

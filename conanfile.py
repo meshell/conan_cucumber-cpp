@@ -31,10 +31,6 @@ class CucumberCppConan(ConanFile):
     boost_version = '1.60.0'
     gtest_version = '1.8.0'
 
-    @staticmethod
-    def _make_cmake_bool(value):
-        return "ON" if value else "OFF"
-
     def source(self):
         tar_name = "{}.tar.gz".format(self.folder_name)
         source_tgz = "https://github.com/cucumber/cucumber-cpp/archive/{release}.tar.gz".format(release=self.version)
@@ -82,16 +78,25 @@ class CucumberCppConan(ConanFile):
         cd_build_cmd = 'cd {src}/{build_dir}'.format(src=self.folder_name,
                                                      build_dir=self.build_dir)
         # BUILD
-        flags = "-DGMOCK_VER={gmock_ver} -DCUKE_DISABLE_BOOST_TEST={disable_boost_test} -DCUKE_USE_STATIC_BOOST={use_static_boost} -DCUKE_DISABLE_GTEST={disable_gtest}".format(
-            gmock_ver=self.gtest_version,
-            disable_boost_test=self._make_cmake_bool(self.options.disable_boost_test),
-            use_static_boost=self._make_cmake_bool(self.options.use_static_boost),
-            disable_gtest=self._make_cmake_bool(self.options.disable_gtest))
-        flag_no_tests = "" if self.scope.dev and self.scope.build_tests else "-DCUKE_DISABLE_UNIT_TESTS=ON -DCUKE_DISABLE_E2E_TESTS=ON"
-        configure_command = '{cd_build} && cmake .. {cmd} {flags} {flag_no_tests}'.format(cd_build=cd_build_cmd,
-                                                                                          cmd=cmake.command_line,
-                                                                                          flags=flags,
-                                                                                          flag_no_tests=flag_no_tests)
+        flags = ["-DGMOCK_VER={}".format(self.gtest_version)]
+        if self.options.disable_boost_test:
+            flags.append("-DCUKE_DISABLE_BOOST_TEST=ON")
+        if self.options.use_static_boost:
+            flags.append("-DCUKE_USE_STATIC_BOOST=ON")
+        else:
+            flags.append("-DCUKE_USE_STATIC_BOOST=OFF")
+        if self.options.disable_gtest:
+            flags.append("-DCUKE_DISABLE_GTEST=ON")
+        if not (self.scope.dev and self.scope.build_tests):
+            flags.append("-DCUKE_DISABLE_UNIT_TESTS=ON")
+            flags.append("-DCUKE_DISABLE_E2E_TESTS=ON")
+
+        # JOIN ALL FLAGS
+        cxx_flags = " ".join(flags)
+
+        configure_command = '{cd_build} && cmake .. {cmd} {flags}'.format(cd_build=cd_build_cmd,
+                                                                          cmd=cmake.command_line,
+                                                                          flags=cxx_flags)
         self.output.warn("Configure with: {}".format(configure_command))
         self.run(configure_command)
 

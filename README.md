@@ -1,5 +1,6 @@
 [![Build Status Travis](https://travis-ci.org/meshell/conan_cucumber-cpp.svg)](https://travis-ci.org/meshell/conan_cucumber-cpp)
 [![Build status AppVeyor](https://ci.appveyor.com/api/projects/status/87xtvnlff3gef1ja?svg=true)](https://ci.appveyor.com/project//meshell/conan_cucumber-cpp)
+[![Conan.io](https://img.shields.io/badge/conan.io-cucumber--cpp%2Fmaster-green.svg)](http://www.conan.io/source/cucumber-cpp/master/meshell/testing)
 
 
 # conan_cucumber-cpp
