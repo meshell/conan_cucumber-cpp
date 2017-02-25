@@ -42,9 +42,9 @@ class CucumberCppConan(ConanFile):
     def requirements(self):
         self.requires("Boost/{boost_version}@lasote/stable".format(boost_version=self.boost_version))
         if not self.options.disable_gtest:
-            self.requires("gmock/{gtest_version}@meshell/testing".format(gtest_version=self.gtest_version))
+            self.requires("gmock/{gtest_version}@meshell/stable".format(gtest_version=self.gtest_version))
         else:
-            self.requires("gmock/{gtest_version}@meshell/testing".format(gtest_version=self.gtest_version), dev=True)
+            self.requires("gmock/{gtest_version}@meshell/stable".format(gtest_version=self.gtest_version), dev=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
