@@ -124,6 +124,12 @@ if(STEP_SOURCES)
     if(BUNDLE)
         message(STATUS "Installing gem dependencies")
         execute_process(COMMAND ${BUNDLE} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        find_program(RBENV rbenv)
+        if(RBENV)
+            message(STATUS "Call rbenv rehash")
+            execute_process(COMMAND ${RBENV} rehash WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        endif(RBENV)
+        execute_process(COMMAND ${BUNDLE} show cucumber WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} OUTPUT_VARIABLE CUCUMBER_PATH)
     else(BUNDLE)
         message(WARNING "Could not find Bundler: skipping Ruby Gem management")
     endif(BUNDLE)
@@ -131,7 +137,8 @@ if(STEP_SOURCES)
     ##############################################
     # Create run targets if cucumber is installed
     ##############################################
-    find_program(CUCUMBER_RUBY cucumber)
+    find_program(CUCUMBER_RUBY cucumber
+        PATHS ${CUCUMBER_PATH})
     if(CUCUMBER_RUBY)
         message(STATUS "Found Cucumber")
         # Target: run feature tests

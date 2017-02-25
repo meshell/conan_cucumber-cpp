@@ -57,18 +57,18 @@ class CucumberCppConan(ConanFile):
 
     def build(self):
         cmakelist_prepend = '''
-        include(${CMAKE_CURRENT_SOURCE_DIR}/../conanbuildinfo.cmake)
-        set(CONAN_SYSTEM_INCLUDES ON)
-        CONAN_BASIC_SETUP()
-        set(GMOCK_ROOT "${CONAN_GTEST_ROOT}")
-        set(GTEST_ROOT "${CONAN_GTEST_ROOT}")
-        '''
+            include(${CMAKE_CURRENT_SOURCE_DIR}/../conanbuildinfo.cmake)
+            set(CONAN_SYSTEM_INCLUDES ON)
+            CONAN_BASIC_SETUP()
+            set(GMOCK_ROOT "${CONAN_GTEST_ROOT}")
+            set(GTEST_ROOT "${CONAN_GTEST_ROOT}")
+            '''
         tools.replace_in_file("{}/CMakeLists.txt".format(self.folder_name), 'project(Cucumber-Cpp)',
                               'project(Cucumber-Cpp CXX C)\n{}'.format(cmakelist_prepend))
 
         cmake = CMake(self.settings)
         cd_src = "cd {}".format(self.folder_name)
-        msdos_shell = (self.settings.os == "Windows") and (self.options.cygwin_msvc == False)
+        msdos_shell = (self.settings.os == "Windows") and (not self.options.cygwin_msvc)
         if msdos_shell:
             self.run("{cd_src} && IF not exist {build_dir} mkdir {build_dir}".format(cd_src=cd_src,
                                                                                      build_dir=self.build_dir))
@@ -125,3 +125,7 @@ class CucumberCppConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs.append('cucumber-cpp')
+        if self.settings.os == "Windows":
+            self.cpp_info.libs.append('ws2_32')
+        else:
+            self.cpp_info.cppflags = ["-pthread"]
