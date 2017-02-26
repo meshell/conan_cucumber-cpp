@@ -24,6 +24,7 @@ class DefaultNameConan(ConanFile):
         def _install_rbenv_linux():
             # Install and setup rbenv
             home_dir = os.environ["HOME"]
+
             rbenv_path = os.path.join(home_dir, ".rbenv")
             if not os.path.exists(rbenv_path):
                 self.run("git clone git://github.com/sstephenson/rbenv.git {}".format(rbenv_path))
@@ -40,13 +41,13 @@ class DefaultNameConan(ConanFile):
             if not ruby_build_bin_path in os.environ["PATH"]:
                 ruby_build_bin_path += os.pathsep + os.environ["PATH"]
                 os.environ["PATH"] = ruby_build_bin_path
+
             rbenv_bundler_path = os.path.join(rbenv_path, "plugins", "bundler")
             if not os.path.exists(rbenv_bundler_path):
                 self.run("git clone git://github.com/carsomyr/rbenv-bundler.git {}".format(rbenv_bundler_path))
 
         def _install_rbenv_mcosx(installer):
             installer.install("rbenv")
-
             os.environ["RBENV_ROOT"] = os.path.join("usr", "local", "var", "rbenv")
             self.run('eval "$(rbenv init -)"')
             installer.install("ruby-build")
@@ -68,15 +69,10 @@ class DefaultNameConan(ConanFile):
             self.run("ruby --version")
 
         def _install_gem(gem):
-            gem_options = []
-            if self.ruby_version == "1.9.3-p551":
-                gem_options.append("--no-rdoc")
-                gem_options.append("--no-ri")
-            else:
-                gem_options.append("--no-document")
-            self.run("gem install {} {}".format(" ".join(gem_options), gem))
+            self.run("gem install --no-document {}".format(gem))
             self.run("rbenv rehash")
 
+        self.global_system_requirements = True
         if os_info.is_linux or os_info.is_macos:
             _install_rbenv()
             _install_and_use_ruby(self.ruby_version)
