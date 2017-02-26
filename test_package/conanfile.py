@@ -13,26 +13,15 @@ class DefaultNameConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     requires = "cucumber-cpp/master@{}/{}".format(username, channel)
     generators = "cmake"
-    options = {
-        "ruby_version": ["1.9.3-p551", "2.0.0-p648",
-                         "2.1.0", "2.1.1", "2.1.2", "2.1.3", "2.1.4", "2.1.5",
-                         "2.1.6", "2.1.7", "2.1.8", "2.1.9", "2.1.10",
-                         "2.2.0", "2.2.1", "2.2.2", "2.2.3", "2.2.4", "2.2.5",
-                         "2.2.6", "2.3.0", "2.3.1", "2.3.2", "2.3.3", "2.4.0"]
-    }
-
-    default_options = "ruby_version=2.4.0"
+    ruby_version = "2.4.0"
 
     def system_requirements(self):
-        def _install_ruby_build_dependencies():
-            installer = SystemPackageTool()
-            installer.update()  # Update the package database
+        def _install_ruby_build_dependencies(installer):
             dependencies = ["build-essential", "libreadline-dev", "libssl-dev", "zlib1g-dev"]
             for dependency in dependencies:
                 installer.install(dependency)
 
-        def _install_rbenv():
-            _install_ruby_build_dependencies()
+        def _install_rbenv_linux():
             # Install and setup rbenv
             home_dir = os.environ["HOME"]
             rbenv_path = os.path.join(home_dir, ".rbenv")
@@ -51,10 +40,26 @@ class DefaultNameConan(ConanFile):
             if not ruby_build_bin_path in os.environ["PATH"]:
                 ruby_build_bin_path += os.pathsep + os.environ["PATH"]
                 os.environ["PATH"] = ruby_build_bin_path
-
             rbenv_bundler_path = os.path.join(rbenv_path, "plugins", "bundler")
             if not os.path.exists(rbenv_bundler_path):
                 self.run("git clone git://github.com/carsomyr/rbenv-bundler.git {}".format(rbenv_bundler_path))
+
+        def _install_rbenv_mcosx(installer):
+            installer.install("rbenv")
+
+            os.environ["RBENV_ROOT"] = os.path.join("usr", "local", "var", "rbenv")
+            self.run('eval "$(rbenv init -)"')
+            installer.install("ruby-build")
+            installer.install("rbenv-bundler")
+
+        def _install_rbenv():
+            installer = SystemPackageTool()
+            installer.update()  # Update the package database
+            if os_info.is_linux:
+                _install_ruby_build_dependencies(installer)
+                _install_rbenv_linux()
+            elif os_info.is_macos:
+                _install_rbenv_mcosx(installer)
 
         def _install_and_use_ruby(version):
             # Install rbenv for managing enabling of multiple rubies.
@@ -64,7 +69,7 @@ class DefaultNameConan(ConanFile):
 
         def _install_gem(gem):
             gem_options = []
-            if self.options.ruby_version == "1.9.3-p551":
+            if self.ruby_version == "1.9.3-p551":
                 gem_options.append("--no-rdoc")
                 gem_options.append("--no-ri")
             else:
@@ -72,10 +77,9 @@ class DefaultNameConan(ConanFile):
             self.run("gem install {} {}".format(" ".join(gem_options), gem))
             self.run("rbenv rehash")
 
-        if not os_info.is_windows:
+        if os_info.is_linux or os_info.is_macos:
             _install_rbenv()
-            _install_and_use_ruby(self.options.ruby_version)
-            # install bundler
+            _install_and_use_ruby(self.ruby_version)
             _install_gem("bundler")
 
     def build(self):
@@ -84,9 +88,9 @@ class DefaultNameConan(ConanFile):
         self.run("cmake --build . {}".format(cmake.build_config))
 
     def test(self):
-        if os_info.is_windows:
-            pass
-        else:
+        if os_info.is_linux or os_info.is_macos:
             self.run("ruby --version")
             cmake = CMake(self.settings)
             self.run("cmake --build . --target run_feature_test {}".format(cmake.build_config))
+        else:
+            pass
