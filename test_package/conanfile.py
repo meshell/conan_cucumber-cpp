@@ -65,7 +65,7 @@ class DefaultNameConan(ConanFile):
         def _install_and_use_ruby(version):
             # Install rbenv for managing enabling of multiple rubies.
             self.run("rbenv install -s {} && rbenv rehash".format(version))
-            self.run("rbenv local {} && rbenv rehash".format(version))
+            self.run("rbenv global {} && rbenv rehash".format(version))
             self.run("ruby --version")
 
         def _install_gem(gem):
