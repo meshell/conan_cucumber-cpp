@@ -129,6 +129,12 @@ if(STEP_SOURCES)
         message(WARNING "Could not find Bundler: skipping Ruby Gem management")
     endif(BUNDLE)
 
+    find_program(RBENV rbenv)
+    if(RBENV)
+        message(STATUS "Run rbenv rehash")
+        execute_process(COMMAND ${RBENV} rehash WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif(RBENV)
+
     ##############################################
     # Create run targets if cucumber is installed
     ##############################################
