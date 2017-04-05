@@ -20,12 +20,12 @@ class CucumberCppConan(ConanFile):
     options = {
         "disable_boost_test": [True, False],  # Disable boost test driver
         "disable_gtest": [True, False],  # Disable googletest driver
-        "use_static_boost": [True, False],  # Statically link Boost (except boost::test)
+        "use_static_boost": [True, False, None],  # Statically link Boost (except boost::test)
         "include_pdbs": [True, False],
         "cygwin_msvc": [True, False]
     }
 
-    default_options = "disable_boost_test=False", "disable_gtest=False", "use_static_boost=False", "include_pdbs=False", "cygwin_msvc=False"
+    default_options = "disable_boost_test=False", "disable_gtest=False", "use_static_boost=None", "include_pdbs=False", "cygwin_msvc=False"
 
     build_dir = '_build'
     boost_version = '1.60.0'
@@ -47,13 +47,18 @@ class CucumberCppConan(ConanFile):
             self.requires("gmock/{gtest_version}@meshell/stable".format(gtest_version=self.gtest_version), dev=True)
 
     def config_options(self):
-        if self.settings.os == "Windows":
-            self.options.use_static_boost = True
         if self.settings.compiler != "Visual Studio":
             try:  # It might have already been removed if required by more than 1 package
                 del self.options.include_pdbs
             except:
                 pass
+
+    def configure(self):
+        if self.options.use_static_boost is None:
+            if self.settings.os == "Windows":
+                self.options.use_static_boost = True
+            else:
+                self.options.use_static_boost = False
 
     def build(self):
         cmakelist_prepend = '''
@@ -83,7 +88,7 @@ class CucumberCppConan(ConanFile):
             flags.append("-DCUKE_DISABLE_BOOST_TEST=ON")
         if self.options.use_static_boost:
             flags.append("-DCUKE_USE_STATIC_BOOST=ON")
-        else:
+        elif not self.options.use_static_boost:
             flags.append("-DCUKE_USE_STATIC_BOOST=OFF")
         if self.options.disable_gtest:
             flags.append("-DCUKE_DISABLE_GTEST=ON")
