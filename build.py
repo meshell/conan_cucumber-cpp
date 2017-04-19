@@ -8,7 +8,7 @@ if __name__ == "__main__":
     for settings, options in builder.builds:
         if (platform.system() == "Windows") and (settings["compiler"] == "gcc"):
             minGWOptions = options.copy()
-            minGWOptions.update({"gtest:disable_pthreads": "True"})
+            minGWOptions.update({"gmock:disable_pthreads": "True"})
             filtered_builds.append([settings, minGWOptions])
 
         filtered_builds.append([settings, options])

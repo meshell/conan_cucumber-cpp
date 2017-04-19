@@ -1,5 +1,5 @@
 from conans import ConanFile, CMake
-from conans.tools import os_info, SystemPackageTool
+from conans.tools import os_info
 import os
 
 # This easily allows to copy the package in other user or channel

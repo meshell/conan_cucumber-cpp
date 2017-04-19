@@ -25,7 +25,13 @@ class CucumberCppConan(ConanFile):
         "cygwin_msvc": [True, False]
     }
 
-    default_options = "disable_boost_test=False", "disable_gtest=False", "use_static_boost=None", "include_pdbs=False", "cygwin_msvc=False"
+    default_options = """
+        disable_boost_test=False
+        disable_gtest=False
+        use_static_boost=None
+        include_pdbs=False
+        cygwin_msvc=False
+    """
 
     build_dir = '_build'
     boost_version = '1.60.0'
@@ -54,6 +60,36 @@ class CucumberCppConan(ConanFile):
                 pass
 
     def configure(self):
+        # Boost components needed by Cucumber-cpp
+        self.options["Boost"].without_date_time = False
+        self.options["Boost"].without_filesystem = False
+        self.options["Boost"].without_program_options = False
+        self.options["Boost"].without_regex = False
+        self.options["Boost"].without_system = False
+        self.options["Boost"].without_thread = False
+        if self.options.disable_boost_test:
+            self.options["Boost"].without_test = True
+        # Boost components not used by cucumber-cpp
+        self.options["Boost"].without_atomic = True
+        self.options["Boost"].without_chrono = True
+        self.options["Boost"].without_container = True
+        self.options["Boost"].without_context = True
+        self.options["Boost"].without_coroutine = True
+        self.options["Boost"].without_coroutine2 = True
+        self.options["Boost"].without_exception = True
+        self.options["Boost"].without_graph = True
+        self.options["Boost"].without_graph_parallel = True
+        self.options["Boost"].without_iostreams = True
+        self.options["Boost"].without_locale = True
+        self.options["Boost"].without_log = True
+        self.options["Boost"].without_math = True
+        self.options["Boost"].without_mpi = True
+        self.options["Boost"].without_random = True
+        self.options["Boost"].without_serialization = True
+        self.options["Boost"].without_signals = True
+        self.options["Boost"].without_timer = True
+        self.options["Boost"].without_type_erasure = True
+        self.options["Boost"].without_wave = True
         if self.options.use_static_boost is None:
             if self.settings.os == "Windows":
                 self.options.use_static_boost = True
@@ -62,12 +98,12 @@ class CucumberCppConan(ConanFile):
 
     def build(self):
         cmakelist_prepend = '''
-            include(${CMAKE_CURRENT_SOURCE_DIR}/../conanbuildinfo.cmake)
-            set(CONAN_SYSTEM_INCLUDES ON)
-            CONAN_BASIC_SETUP()
-            set(GMOCK_ROOT "${CONAN_GTEST_ROOT}")
-            set(GTEST_ROOT "${CONAN_GTEST_ROOT}")
-            '''
+                include(${CMAKE_CURRENT_SOURCE_DIR}/../conanbuildinfo.cmake)
+                set(CONAN_SYSTEM_INCLUDES ON)
+                CONAN_BASIC_SETUP()
+                set(GMOCK_ROOT "${CONAN_GTEST_ROOT}")
+                set(GTEST_ROOT "${CONAN_GTEST_ROOT}")
+                '''
         tools.replace_in_file("{}/CMakeLists.txt".format(self.folder_name), 'project(Cucumber-Cpp)',
                               'project(Cucumber-Cpp CXX C)\n{}'.format(cmakelist_prepend))
 
