@@ -16,20 +16,20 @@ Download conan client from [Conan.io](https://conan.io) and run:
 
 ## Upload packages to server
 
-    $ conan upload cucumber-cpp/master@meshell/stable --all
+    $ conan upload cucumber-cpp/0.4@meshell/stable --all
 
 ## Reuse the packages
 
 ### Basic setup
 
-    $ conan install cucumber-cpp/master@meshell/stable
+    $ conan install cucumber-cpp/0.4@meshell/stable
 
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
 
     [requires]
-    cucumber-cpp/master@meshell/stable
+    cucumber-cpp/master@0.4/stable
 
     [options]
     cucumber-cpp:disable_boost_test=true  # Disable boosttest driver
