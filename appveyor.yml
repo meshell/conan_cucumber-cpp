@@ -9,6 +9,10 @@ environment:
     CONAN_CHANNEL: "stable"
     CONAN_TOTAL_PAGES: 10
     CONAN_STABLE_BRANCH_PATTERN: "release/*"
+    CONAN_UPLOAD: https://api.bintray.com/conan/meshell/conan_packages
+    CONAN_PASSWORD:
+      secure: zfGZpAzxC5n8mV6DVaHXWgPFAVQ3U+d57R/qqdJ6gJ+zq1k7qDhlyiUA5fDhKUHW
+
 
     matrix:
         - CONAN_CURRENT_PAGE: 1
