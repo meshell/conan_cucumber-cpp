@@ -9,7 +9,6 @@ language: python
 
 env:
   global:
-    - CONAN_USERNAME: "conan"
     - CONAN_LOGIN_USERNAME: "meshell"
     - CONAN_REFERENCE: "cucumber-cpp/0.4"
     - CONAN_CHANNEL: "stable"
