@@ -10,7 +10,7 @@ language: python
 env:
   global:
     - CONAN_UPLOAD=1
-    - CONAN_REFERENCE="cucumber-cpp/master"
+    - CONAN_REFERENCE="cucumber-cpp/0.4"
     - CONAN_CHANNEL="stable"
     - CONAN_TOTAL_PAGES=8
     - CONAN_STABLE_BRANCH_PATTERN="release/*"
