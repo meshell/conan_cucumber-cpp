@@ -9,10 +9,12 @@ language: python
 
 env:
   global:
-    - CONAN_REFERENCE="cucumber-cpp/0.4"
-    - CONAN_CHANNEL="stable"
-    - CONAN_TOTAL_PAGES=8
-    - CONAN_STABLE_BRANCH_PATTERN="release/*"
+    - CONAN_USERNAME: "conan"
+    - CONAN_LOGIN_USERNAME: "meshell"
+    - CONAN_REFERENCE: "cucumber-cpp/0.4"
+    - CONAN_CHANNEL: "stable"
+    - CONAN_TOTAL_PAGES: 2
+    - CONAN_STABLE_BRANCH_PATTERN: "release/*"
 
 linux: &linux
    os: linux
