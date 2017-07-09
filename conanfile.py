@@ -56,7 +56,7 @@ class CucumberCppConan(ConanFile):
         if self.settings.compiler != "Visual Studio":
             try:  # It might have already been removed if required by more than 1 package
                 del self.options.include_pdbs
-            except:
+            except Exception:
                 pass
 
     def configure(self):
@@ -128,9 +128,9 @@ class CucumberCppConan(ConanFile):
             flags.append("-DCUKE_USE_STATIC_BOOST=OFF")
         if self.options.disable_gtest:
             flags.append("-DCUKE_DISABLE_GTEST=ON")
-        if not (self.scope.dev and self.scope.build_tests):
-            flags.append("-DCUKE_DISABLE_UNIT_TESTS=ON")
-            flags.append("-DCUKE_DISABLE_E2E_TESTS=ON")
+        # if not (self.scope.dev and self.scope.build_tests):
+        #     flags.append("-DCUKE_DISABLE_UNIT_TESTS=ON")
+        #     flags.append("-DCUKE_DISABLE_E2E_TESTS=ON")
 
         # JOIN ALL FLAGS
         cxx_flags = " ".join(flags)
